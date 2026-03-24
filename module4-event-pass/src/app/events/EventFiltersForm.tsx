@@ -16,13 +16,47 @@
 
 'use client';
 
-import { Search } from 'lucide-react';
+import { Search, X} from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { EVENT_CATEGORIES, CATEGORY_LABELS, EVENT_STATUSES, STATUS_LABELS, type EventCategory } from '@/types/event';
+import { EVENT_CATEGORIES, CATEGORY_LABELS, EVENT_STATUSES, STATUS_LABELS, type EventCategory, type EventStatus } from '@/types/event';
 import { useRef, useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
+
+//Helper: construye la URL omitiendo los campos vacios
+//Ejemplo: events?search=rock&category=music&priceMax=50
+function buildUrl(filters: Partial<EventFiltersFormProps['currentFilters']>): string{
+  const params = new URLSearchParams();
+
+  if (filters.search)    params.set('search',   filters.search);
+  if (filters.category)  params.set('category', filters.category);
+  if (filters.status)    params.set('status',   filters.status);
+  if (filters.priceMax !== undefined) params.set('priceMax', String(filters.priceMax));
+
+  const qs = params.toString();
+  return qs ? `/events?${qs}` : '/events';
+}
+
+//Helper: etiqueta legible para el filtro de precio
+function getPriceLabel(priceMax: number): string {
+  if (priceMax === 0) return 'Gratis';
+  return `Hasta $${priceMax}`;
+}
+
+//badge/pill de un filtro activo
+function FilterBadge({ label, href }: { label: string; href: string }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary ring-1 ring-inset ring-primary/20 transition-colors hover:bg-primary/20"
+    >
+      {label}
+      <X className="h-3 w-3" />
+    </Link>
+  );
+}
+
 
 interface EventFiltersFormProps {
   currentFilters: {
