@@ -82,6 +82,11 @@ export function EventFiltersForm({ currentFilters }: EventFiltersFormProps): Rea
   // Ref para evitar bucle infinito en primer render
   const isFirstRender = useRef(true);
 
+  //Sincroniza el input de búsqueda cuando cambian los filtros externos (ej: navegar atrás)
+  useEffect(() => {
+    setSearchTerm(currentFilters.search ?? '');
+  }, [currentFilters.search]);
+
   const hasFilters =
     currentFilters.search || currentFilters.category || currentFilters.priceMax || currentFilters.status;
 
