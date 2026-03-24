@@ -75,17 +75,27 @@ export function EventFiltersForm({ currentFilters }: EventFiltersFormProps): Rea
 
   // Estado local para el input de búsqueda
   const [searchTerm, setSearchTerm] = useState(currentFilters.search ?? '');
+  const [category, setCategory] = useState(currentFilters.category ?? '');
+  const [status, setStatus] = useState(currentFilters.status ?? '');
+  const [priceMax, setPriceMax] = useState(currentFilters.priceMax?.toString() ?? '');
 
   // Valor debounced (retrasado 500ms)
   const debouncedSearch = useDebounce(searchTerm, 500);
 
   // Ref para evitar bucle infinito en primer render
   const isFirstRender = useRef(true);
+  // Ref para saber si el cambio en searchTerm vino del usuario (true) o de sync externa (false)
+  const userTyped = useRef(false);
 
-  //Sincroniza el input de búsqueda cuando cambian los filtros externos (ej: navegar atrás)
+  //Sincroniza los estados cuando cambian los filtros externos (ej: limpiar filtros, navegar atrás)
   useEffect(() => {
+    // el cambio viene de fuera, no del usuario
+    userTyped.current = false; 
     setSearchTerm(currentFilters.search ?? '');
-  }, [currentFilters.search]);
+    setCategory(currentFilters.category ?? '');
+    setStatus(currentFilters.status ?? '');
+    setPriceMax(currentFilters.priceMax?.toString() ?? '');
+  }, [currentFilters.search, currentFilters.category, currentFilters.status, currentFilters.priceMax]);
 
   const hasFilters =
     currentFilters.search || currentFilters.category || currentFilters.priceMax || currentFilters.status;
@@ -98,6 +108,10 @@ export function EventFiltersForm({ currentFilters }: EventFiltersFormProps): Rea
       return;
     }
 
+    //Solo se hace submit si el cambio vino del usuario, no de la sincronización externa
+    if (!userTyped.current) return;
+    userTyped.current = false;
+
     // Enviamos el formulario programáticamente
     formRef.current?.requestSubmit();
   }, [debouncedSearch]);
@@ -109,6 +123,7 @@ export function EventFiltersForm({ currentFilters }: EventFiltersFormProps): Rea
 
   // Handler para input de búsqueda (actualiza estado local)
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    userTyped.current = true; // el usuario está escribiendo
     setSearchTerm(e.target.value);
   };
 
@@ -171,8 +186,8 @@ export function EventFiltersForm({ currentFilters }: EventFiltersFormProps): Rea
           {/* Categoría */}
           <select
             name="category"
-            defaultValue={currentFilters.category ?? ''}
-            onChange={handleFilterChange}
+            value={category}
+            onChange={(e) => { setCategory(e.target.value); handleFilterChange(e); }}
             className="h-10 w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <option value="">Todas las categorías</option>
@@ -186,8 +201,8 @@ export function EventFiltersForm({ currentFilters }: EventFiltersFormProps): Rea
           {/* Status */}
           <select
             name="status"
-            defaultValue={currentFilters.status ?? ''}
-            onChange={handleFilterChange}
+            value={status}
+            onChange={(e) => { setStatus(e.target.value); handleFilterChange(e); }}
             className="h-10 w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <option value="">Todos los estados</option>
@@ -201,8 +216,8 @@ export function EventFiltersForm({ currentFilters }: EventFiltersFormProps): Rea
           {/* Precio maximo */}
           <select
             name="priceMax"
-            defaultValue={currentFilters.priceMax?.toString() ?? ''}
-            onChange={handleFilterChange}
+            value={priceMax}
+            onChange={(e) => { setPriceMax(e.target.value); handleFilterChange(e); }}
             className="h-10 w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <option value="">Cualquier precio</option>
