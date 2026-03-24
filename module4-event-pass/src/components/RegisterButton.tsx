@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { registerForEventAction } from '@/actions/eventActions';
 import { Loader2, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from '@/components/ui/use-toast';
 
 interface RegisterButtonProps {
   eventId: string;
@@ -78,9 +79,10 @@ export function RegisterButton({
       const result = await registerForEventAction(eventId);
 
       if (!result.success) {
-        // Si falla, podríamos mostrar un toast de error
-        // El estado optimista se revierte automáticamente
-        console.error('Error al registrar:', result.message);
+        //El estado optimista se revierte automáticamente
+        toast({ title: 'Error', description: result.message, variant: 'destructive' });
+      } else {
+        toast({ title: '¡Registro exitoso!', description: result.message });
       }
     });
   }
