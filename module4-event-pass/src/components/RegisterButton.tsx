@@ -71,11 +71,9 @@ export function RegisterButton({
    * Handler del registro.
    */
   async function handleRegister(): Promise<void> {
-    // 1. Actualización optimista inmediata
-    addOptimistic('register');
-
-    // 2. Ejecutar Server Action en una transición
+    // Actualización optimista + Server Action dentro de la transición
     startTransition(async () => {
+      addOptimistic('register');
       const result = await registerForEventAction(eventId);
 
       if (!result.success) {
