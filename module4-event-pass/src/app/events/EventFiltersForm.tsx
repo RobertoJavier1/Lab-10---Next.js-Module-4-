@@ -109,6 +109,40 @@ export function EventFiltersForm({ currentFilters }: EventFiltersFormProps): Rea
 
   return (
     <div className="space-y-4 rounded-lg border bg-card p-4">
+      {/* Filtros activo badge/pill*/}
+      {hasFilters && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">Activos:</span>
+
+          {currentFilters.search && (
+            <FilterBadge
+              label={`"${currentFilters.search}"`}
+              href={buildUrl({ ...currentFilters, search: undefined })}
+            />
+          )}
+
+          {currentFilters.category && (
+            <FilterBadge
+              label={CATEGORY_LABELS[currentFilters.category]}
+              href={buildUrl({ ...currentFilters, category: undefined })}
+            />
+          )}
+
+          {currentFilters.status && (
+            <FilterBadge
+              label={STATUS_LABELS[currentFilters.status as EventStatus]}
+              href={buildUrl({ ...currentFilters, status: undefined })}
+            />
+          )}
+
+          {currentFilters.priceMax !== undefined && (
+            <FilterBadge
+              label={getPriceLabel(currentFilters.priceMax)}
+              href={buildUrl({ ...currentFilters, priceMax: undefined })}
+            />
+          )}
+        </div>
+      )}
       {/* Formulario con method GET */}
       <form ref={formRef} method="GET" action="/events" className="space-y-4">
         {/* Búsqueda */}
